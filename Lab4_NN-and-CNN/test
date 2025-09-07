@@ -1,0 +1,100 @@
+ส่วน load data 
+class indices คือเก็บ index แล้วแยก 0 กับ 1
+train loader ให้ shuffle หน่อย
+
+
+class nn
+เริ่มแรก flatten -> ทำ full connect -> ทำ sigmoid
+full connect ที่ infeature เป็น 28*28 เพราะรูปเรา 28*28
+out feature เป็น 1 เพราะต้องการค่าเดียวเป็น 0 หรือ 1
+
+class mlp
+flatten -> full connect -> sigmoid -> full connect -> sigmoid
+fc1 out_feature คือจำนวน node ใน hidden layer 
+fc2 ส่งออกค่าเดียวเป็น 0 หรือ 1
+
+class cnn
+convo 2 อัน -> flatten -> full connect 2 อัน
+
+
+
+show_featuremaps ใช้สำหรับแสดงผล feature maps ในรูปแบบภาพ
+- `feats = [feat.detach().cpu() for feat in feats]`  
+  แปลง tensor ของ feature maps ให้อยู่บน CPU
+- วนลูปแต่ละ feature map (`for i, feat in enumerate(feats):`)
+  - ถ้า shape เป็น (1, 1):  
+    แสดงภาพด้วย colormap 'viridis' (เหมาะกับ feature ที่เป็น scalar)
+  - ถ้าเป็น 2D tensor:  
+    สลับแกน (transpose) แล้วแสดงผลเป็นภาพ
+  - กรณีอื่น (เช่น feature map จาก convo layer):  
+    บีบ batch ออก (`squeeze(0)`) แล้ว reshape โดยทำเพื่อ "แผ่" feature map หลายๆ channel ออกมาเรียงต่อกันในแนวตั้ง เพื่อให้เห็น feature ของทุก channel พร้อมกันในภาพเดียว
+
+
+
+
+
+train
+ย้ายโมเดลไปยัง device ที่กำหนด (CPU หรือ GPU)
+
+วนลูปตามจำนวน epoch
+เริ่มต้นค่าต่างๆ สำหรับเก็บ loss, accuracy
+
+Training Phase
+วนลูปแต่ละ batch ใน train_loader
+ส่งภาพและ label เข้าโมเดล
+คำนวณ loss จาก loss function ของเรา
+ล้าง gradient → คำนวณ gradient → อัปเดตน้ำหนัก
+    opt.zero_grad() ล้างค่า gradient เดิมทั้งหมดในโมเดล
+    loss.backward() คำนวณ gradient ของ loss เทียบกับพารามิเตอร์ทุกตัวในโมเดล
+    opt.step() อัปเดตน้ำหนักตาม gradient ที่คำนวณได้ โดยใช้ optimizer ที่กำหนดไว้ (เช่น Adam)
+สะสมค่า loss และนับจำนวนที่ทายถูก 
+
+คำนวณค่าเฉลี่ย loss/accuracy ของ train
+train_loss /= train_total
+train_acc = train_correct / train_total
+
+
+Test Phase
+ปิดการเรียนรู้ (model.eval())
+วนลูปแต่ละ batch ใน test_loader โดยไม่เก็บ gradient torch.no_grad()
+คำนวณ loss และ accuracy เหมือน train
+
+
+Log ข้อมูลลง TensorBoard (ถ้ามี writer)
+บันทึก loss/accuracy ของ train และ test
+แสดง feature map ของแต่ละ layer ด้วยฟังก์ชัน show_featuremaps
+แสดงผลการฝึกในแต่ละ epoch
+
+print ค่า loss/accuracy
+บันทึกน้ำหนักโมเดล (ถ้ามี path)
+
+
+
+สร้าง confusion matrix 
+ฟังก์ชัน create_confusion_matrix
+    รับโมเดล, dataloader, class_names
+    วนลูปข้อมูลใน dataloader เพื่อทำนายผล (prediction) ของแต่ละภาพ
+    เก็บค่าจริง (y_true) และค่าที่โมเดลทำนาย (y_pred)
+    สร้าง confusion matrix ด้วย sklearn.metrics.confusion_matrix
+
+ฟังก์ชัน create_confusion_matrix_model
+    รับชื่อโมเดล (NN, MLP, CNN)
+    สำหรับแต่ละคู่ (เช่น 0-1, 0-2, ... 8-9):
+        โหลดโมเดลและ weights ที่ฝึกไว้
+        โหลดข้อมูล test ของคู่นั้น
+        สร้าง confusion matrix ด้วยฟังก์ชันข้างบน
+        แสดง confusion matrix ใน subplot พร้อมใส่ label และค่าตัวเลขในแต่ละช่อง
+    ลบ subplot ที่ไม่ได้ใช้ (ถ้าคู่ไม่ครบ)
+    แสดงผลลัพธ์ทั้งหมด
+วนลูปสร้าง confusion matrix สำหรับทุกโมเดล
+
+เรียก create_confusion_matrix_model สำหรับแต่ละโมเดล (NN, MLP, CNN)
+
+
+
+
+
+
+batch size = จำนวนข้อมูลที่ใช้ฝึกในแต่ละรอบ (ก่อนอัปเดตน้ำหนัก)
+epoch คือ 1 รอบการนำข้อมูลทั้งหมดในชุด training dataset ผ่านกระบวนการ train โมเดล 1 ครั้ง
+ถ้ามี 1000 รูป และ batch size = 100 → 1 epoch จะ train 10 batch

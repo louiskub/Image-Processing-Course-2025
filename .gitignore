@@ -1,0 +1,15 @@
+.DS_Store
+Lab4_NN-and-CNN/Ship/
+Lab4_NN-and-CNN/thai-handwriting-number.appspot.com/
+Lab4_NN-and-CNN/data/
+
+Lab5_CNN/data/
+Lab5_CNN/checkpoints/
+Lab5_CNN/feature_maps/
+Lab5_CNN/runs/
+Lab5_CNN/data.tar.gz
+
+Lab6_Hyperparameter-Tuning/runs/
+Lab6_Hyperparameter-Tuning/checkpoints/
+Lab6_Hyperparameter-Tuning/test/
+Lab6_Hyperparameter-Tuning/img_align_celeba/
