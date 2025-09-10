@@ -2,6 +2,7 @@
 Lab4_NN-and-CNN/Ship/
 Lab4_NN-and-CNN/thai-handwriting-number.appspot.com/
 Lab4_NN-and-CNN/data/
+Lab4_NN-and-CNN/checkpoints/
 
 Lab5_CNN/data/
 Lab5_CNN/checkpoints/
@@ -13,5 +14,13 @@ Lab6_Hyperparameter-Tuning/runs/
 Lab6_Hyperparameter-Tuning/results/
 Lab6_Hyperparameter-Tuning/featuremaps/
 Lab6_Hyperparameter-Tuning/checkpoints/
+Lab6_Hyperparameter-Tuning/outputs/
 Lab6_Hyperparameter-Tuning/test/
 Lab6_Hyperparameter-Tuning/img_align_celeba/
+
+
+test.zip
+results.zip
+img_align_celeba.zip
+jupyter-on-slurm (1).pdf
+*.pth
